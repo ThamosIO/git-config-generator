@@ -1,0 +1,62 @@
+#!/bin/bash
+
+usage() {
+  printf "\n⚙️  Git config generator\n"
+  printf "\nUsage: git-config [--interactive | -i]\n"
+  printf "Description:\n\tThis tool helps you configure your git & ssh parameters for a set of projects kept in the same folder.\n"
+  printf "\tYou can fill out the values in values.config.\n"
+  printf "\tWhat it does:\n"
+  printf "\t\t- Configures your git user name & email for all projects in the folder\n"
+  printf "\t\t- Configures the SSH key to use for your git server's domain\n"
+  printf "\t\t- Keeps the git configuration in a separate file to allow multiple configurations\n"
+  printf "\nIt will create and update the following files:\n"
+  printf "\t- New file: ~/.gitconfig-<project>\n"
+  printf "\t- Update: ~/.gitconfig\n"
+  printf "\t- Update: ~/.ssh/config\n"
+}
+
+interactive=false
+
+if [ "$#" -eq 1 ] && ([[ "$1" == "--interactive" ]] || [[ "$1" == "-i" ]]); then
+  interactive=true
+fi
+stat ./values.config 2>&1 > /dev/null && . ./values.config
+
+if ([ "$#" -eq 1 ] && [[ "$1" == "help" ]]) || ([ "$#" -ne 6 ] && [ "$#" -ne 0 ] && ! $interactive); then
+  usage
+  exit 0
+fi
+
+if $interactive; then
+  read -p "Enter your project name: " project
+  read -p "Enter the root folder of all your project repositories: " project_path
+  read -p "Enter your full name for the git author: " full_name
+  read -p "Enter your email: " email
+  read -p "Enter your git server's domain: " domain
+  read -p "Enter the full path of your ssh key: " ssh_key_path
+fi
+
+if [ -z "$project" ] || [ -z "$project_path" ] || [ -z "$full_name" ] || [ -z "$email" ] || [ -z "$domain" ] || [ -z "$ssh_key_path" ]; then
+  printf "All values must be non-empty."
+  exit 1
+fi
+
+cat <<EOT >> ~/.gitconfig
+
+[includeIf "gitdir:$project_path"]
+  path = .gitconfig-$project
+EOT
+
+cat <<EOT >> ~/.gitconfig-$project
+
+[user]
+  name = $full_name
+  email = $email
+EOT
+
+cat <<EOT >> ~/.ssh/config
+
+Host $domain
+ HostName $domain
+ IdentityFile $ssh_key_path
+EOT

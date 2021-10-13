@@ -1,0 +1,18 @@
+
+# example: company-project
+project=
+
+# example: /Users/me/workspace/company/
+project_path=
+
+# example: John DOE
+full_name=
+
+# example: john.doe@company.com 
+email=
+
+# example: git.company.com
+domain=
+
+# example: ~/.ssh/company-key
+ssh_key_path=
