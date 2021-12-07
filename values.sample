@@ -3,6 +3,7 @@
 project=
 
 # example: /Users/me/workspace/company/
+# The last / is mandatory
 project_path=
 
 # example: John DOE
