@@ -19,8 +19,9 @@ interactive=false
 
 if [ "$#" -eq 1 ] && ([[ "$1" == "--interactive" ]] || [[ "$1" == "-i" ]]); then
   interactive=true
+else
+  stat ./values.config 2>&1 > /dev/null && . ./values.config
 fi
-stat ./values.config 2>&1 > /dev/null && . ./values.config
 
 if ([ "$#" -eq 1 ] && [[ "$1" == "help" ]]) || ([ "$#" -ne 6 ] && [ "$#" -ne 0 ] && ! $interactive); then
   usage
@@ -37,9 +38,15 @@ if $interactive; then
 fi
 
 if [ -z "$project" ] || [ -z "$project_path" ] || [ -z "$full_name" ] || [ -z "$email" ] || [ -z "$domain" ] || [ -z "$ssh_key_path" ]; then
-  printf "All values must be non-empty."
+  printf "All values must be set."
   exit 1
 fi
+
+printf $project_path
+if [[ "$project_path" != */ ]]; then
+  project_path=$project_path/
+fi
+printf $project_path
 
 cat <<EOT >> ~/.gitconfig
 
